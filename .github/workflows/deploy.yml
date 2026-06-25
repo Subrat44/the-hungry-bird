@@ -1,0 +1,47 @@
+name: Deploy
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "app/**"
+      - "requirements.txt"
+      - ".github/workflows/deploy.yml"
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}" > ~/.ssh/restro_finder
+          chmod 600 ~/.ssh/restro_finder
+          ssh-keyscan -H "${{ secrets.VM_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Sync application files
+        run: |
+          rsync -az --delete \
+            -e "ssh -i ~/.ssh/restro_finder" \
+            app requirements.txt \
+            deploy@${{ secrets.VM_HOST }}:/tmp/restro-finder-release/
+
+      - name: Install and restart
+        run: |
+          ssh -i ~/.ssh/restro_finder deploy@${{ secrets.VM_HOST }} <<'SCRIPT'
+          set -euo pipefail
+          sudo rsync -a --delete /tmp/restro-finder-release/ /opt/restro-finder/
+          sudo install -m 600 -o root -g root /dev/null /etc/restro-finder.env
+          printf 'GOOGLE_MAPS_API_KEY=%s\n' '${{ secrets.GOOGLE_MAPS_API_KEY }}' | sudo tee /etc/restro-finder.env >/dev/null
+          sudo chown -R restro:restro /opt/restro-finder
+          sudo -u restro python3 -m venv /opt/restro-finder/.venv
+          sudo -u restro /opt/restro-finder/.venv/bin/pip install --upgrade pip
+          sudo -u restro /opt/restro-finder/.venv/bin/pip install -r /opt/restro-finder/requirements.txt
+          sudo systemctl daemon-reload
+          sudo systemctl enable restro-finder
+          sudo systemctl restart restro-finder
+          sudo systemctl reload nginx
+          SCRIPT

@@ -1,0 +1,17 @@
+[Unit]
+Description=Restro Finder FastAPI service
+After=network.target
+
+[Service]
+Type=simple
+User=restro
+Group=restro
+WorkingDirectory=/opt/restro-finder
+Environment=PYTHONUNBUFFERED=1
+EnvironmentFile=-/etc/restro-finder.env
+ExecStart=/opt/restro-finder/.venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

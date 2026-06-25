@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Restro Finder</title>
+    <link rel="stylesheet" href="/static/style.css">
+  </head>
+  <body>
+    <main class="shell">
+      <section class="search-panel" aria-label="Restaurant search">
+        <div class="brand-row">
+          <div>
+            <p class="eyebrow">CITY TABLE INDEX</p>
+            <h1>Restro Finder</h1>
+            <p class="subhead">Search Indian restaurants in Bengaluru using local demo data or Google Maps.</p>
+          </div>
+          <div class="ticket-stamp" id="result-count">0 spots</div>
+        </div>
+
+        <form id="filters" class="filters">
+          <label class="query-field">
+            <span>Search</span>
+            <input id="q" name="q" type="search" autocomplete="off" placeholder="dosa, biryani, thali, Koramangala">
+          </label>
+
+          <label>
+            <span>Source</span>
+            <select id="source" name="source">
+              <option value="local">Demo data</option>
+              <option value="google">Google Maps</option>
+            </select>
+          </label>
+
+          <label>
+            <span>Cuisine</span>
+            <select id="cuisine" name="cuisine">
+              <option value="">Any cuisine</option>
+            </select>
+          </label>
+
+          <label>
+            <span>Area</span>
+            <select id="area" name="area">
+              <option value="">Any area</option>
+            </select>
+          </label>
+
+          <label>
+            <span>Price</span>
+            <select id="price" name="price">
+              <option value="">Any price</option>
+              <option value="$">$</option>
+              <option value="$$">$$</option>
+              <option value="$$$">$$$</option>
+            </select>
+          </label>
+
+          <label>
+            <span>Rating</span>
+            <select id="min_rating" name="min_rating">
+              <option value="0">Any rating</option>
+              <option value="4.3">4.3+</option>
+              <option value="4.5">4.5+</option>
+              <option value="4.7">4.7+</option>
+            </select>
+          </label>
+
+          <label>
+            <span>Sort</span>
+            <select id="sort" name="sort">
+              <option value="rating">Best rated</option>
+              <option value="distance">Nearest</option>
+              <option value="name">Name</option>
+            </select>
+          </label>
+
+          <label class="checkbox-line">
+            <input id="open_now" name="open_now" type="checkbox">
+            <span>Open now</span>
+          </label>
+        </form>
+
+        <div class="tag-strip" aria-label="Popular tags">
+        </div>
+      </section>
+
+      <section class="content-grid">
+        <div>
+          <div id="results" class="results" aria-live="polite"></div>
+          <p id="empty-state" class="empty-state" hidden>No restaurants match those filters.</p>
+          <p id="source-message" class="source-message" hidden></p>
+        </div>
+
+        <aside class="detail-panel" id="detail-panel" aria-label="Selected restaurant">
+          <img id="detail-image" src="" alt="">
+          <div class="detail-copy">
+            <p class="eyebrow" id="detail-area">Pick a spot</p>
+            <h2 id="detail-name">Choose a restaurant</h2>
+            <p id="detail-description">Select a result to see the address, hours, phone number, and tags.</p>
+            <dl>
+              <div>
+                <dt>Address</dt>
+                <dd id="detail-address">-</dd>
+              </div>
+              <div>
+                <dt>Hours</dt>
+                <dd id="detail-hours">-</dd>
+              </div>
+              <div>
+                <dt>Phone</dt>
+                <dd id="detail-phone">-</dd>
+              </div>
+              <div>
+                <dt>Maps</dt>
+                <dd id="detail-maps">-</dd>
+              </div>
+            </dl>
+            <div id="detail-tags" class="detail-tags"></div>
+          </div>
+        </aside>
+      </section>
+    </main>
+
+    <script src="/static/script.js"></script>
+  </body>
+</html>

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" role="img" aria-label="Bengaluru restaurant placeholder">
+  <rect width="800" height="600" fill="#f7f1e6"/>
+  <rect x="92" y="100" width="616" height="400" rx="18" fill="#fffaf1" stroke="#d8cabb" stroke-width="4"/>
+  <path d="M154 214h492M154 300h492M154 386h492" stroke="#d8cabb" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="228" cy="214" r="34" fill="#c13f34"/>
+  <circle cx="228" cy="300" r="34" fill="#2f7a5f"/>
+  <circle cx="228" cy="386" r="34" fill="#285f86"/>
+  <text x="302" y="229" font-family="Arial, sans-serif" font-size="38" font-weight="800" fill="#202020">Bengaluru</text>
+  <text x="302" y="314" font-family="Arial, sans-serif" font-size="32" font-weight="700" fill="#70695f">Indian Restaurant</text>
+  <text x="302" y="399" font-family="Arial, sans-serif" font-size="28" font-weight="700" fill="#70695f">Google Maps Result</text>
+</svg>
