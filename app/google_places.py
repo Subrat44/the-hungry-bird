@@ -65,7 +65,7 @@ def search_bengaluru_restaurants(query=None, cuisine=None, area=None, tag=None, 
 
     for overpass_url in OVERPASS_URLS:
         try:
-            response = requests.get(overpass_url, params={"data": OVERPASS_QUERY}, timeout=20)
+            response = requests.get(overpass_url, params={"data": OVERPASS_QUERY}, timeout=30)
             response.raise_for_status()
             data = response.json()
             break
