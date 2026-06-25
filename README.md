@@ -89,3 +89,4 @@ The workflows expect these secrets:
 - No database. This is intentionally simple and fast, but every data change requires a deploy.
 - One VM means simple operations and low cost, but no high availability.
 - SSH deploys are straightforward, though a container registry or artifact-based release can be cleaner as the app grows.
+# the-hungry-bird
