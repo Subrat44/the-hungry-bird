@@ -19,46 +19,46 @@ real-time data — no paid API key required for either.
 
 ```text
 ┌──────────────────────────────────────────────────────────────┐
-│                            Browser                            │
-│                                                                │
-│  index.html + script.js                                       │
-│  - Renders filters, restaurant cards, and the detail panel    │
-│  - Calls the API on page load and on every filter change      │
+│                            Browser                           │
+│                                                              │
+│  index.html + script.js                                      │
+│  - Renders filters, restaurant cards, and the detail panel   │
+│  - Calls the API on page load and on every filter change     │
 └──────────────────────────────────────────────────────────────┘
                               │
                               │ GET /api/meta
                               │ GET /api/restaurants?...
                               ▼
 ┌──────────────────────────────────────────────────────────────┐
-│                  FastAPI App  (app/main.py)                   │
-│            hosted on Render, auto-deployed from `main`        │
-│                                                                │
-│ Responsibility:                                                │
-│ - Serve the static frontend                                    │
-│ - Expose /healthz, /api/meta, /api/restaurants                 │
-│ - Apply filters: q, cuisine, area, price, rating, tag, sort    │
+│                  FastAPI App  (app/main.py)                  │
+│            hosted on Render, auto-deployed from `main`       │
+│                                                              │
+│ Responsibility:                                              │
+│ - Serve the static frontend                                  │
+│ - Expose /healthz, /api/meta, /api/restaurants               │
+│ - Apply filters: q, cuisine, area, price, rating, tag, sort  │
 └──────────────────────────────────────────────────────────────┘
                               │
             source=local      │      source=google
         ┌─────────────────────┴─────────────────────┐
         ▼                                            ▼
-┌─────────────────────────────┐      ┌─────────────────────────────────┐
-│    Static Catalogue           │      │    Live OpenStreetMap Search      │
-│    (app/data.py)               │      │    (app/google_places.py)          │
-│                                │      │                                     │
-│ - 10 curated Bengaluru          │      │ - Queries the Overpass API for     │
-│   restaurants, baked into        │      │   restaurants in a Bengaluru        │
-│   the app                        │      │   bounding box                      │
-│ - Always available, no            │      │ - Retries a second mirror, then     │
-│   network dependency               │      │   degrades to an empty list with     │
-│                                │      │   a friendly message                 │
-└─────────────────────────────┘      └─────────────────────────────────┘
-        │                                            │
+┌─────────────────────────────┐          ┌─────────────────────────────────┐
+│    Static Catalogue         │          │    Live OpenStreetMap Search    │
+│    (app/data.py)            │          │    (app/google_places.py)       │
+│                             │          │                                 │
+│ - 10 curated Bengaluru      │          │ - Queries the Overpass API for  │
+│   restaurants, baked into   │          │   restaurants in a Bengaluru    │
+│   the app                   │          │   bounding box                  │
+│ - Always available, no      │          │ - Retries a second mirror, the  │
+│   network dependency        │          │   degrades to an empty list wit │
+│                             │              a friendly message            │
+└─────────────────────────────┘          └─────────────────────────────────┘
+        │                                           │
         └─────────────────────┬─────────────────────┘
                               ▼
 ┌──────────────────────────────────────────────────────────────┐
-│         JSON: { "count", "restaurants", "message" }            │
-│         sent back to the browser and rendered as cards          │
+│         JSON: { "count", "restaurants", "message" }          │
+│         sent back to the browser and rendered as cards       │
 └──────────────────────────────────────────────────────────────┘
 ```
 
@@ -166,7 +166,7 @@ pip install -r requirements.txt
 uvicorn app.main:app --reload
 ```
 
-Open `http://127.0.0.1:8000`.
+Open `http://127.0.0.1:8001`.
 
 No API key is required — the demo source works immediately, and the live
 OpenStreetMap source works with zero configuration too.
@@ -201,7 +201,7 @@ no API key, no billing. `app/google_places.py`:
   Actions runs and Render itself during testing)
 
 ```bash
-curl "http://127.0.0.1:8000/api/restaurants?source=google&q=dosa"
+curl "http://127.0.0.1:8001/api/restaurants?source=google&q=dosa"
 ```
 
 ## Deployment
