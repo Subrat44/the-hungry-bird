@@ -19,7 +19,7 @@ pip install -r requirements.txt
 uvicorn app.main:app --reload
 ```
 
-Open `http://127.0.0.1:8000`.
+Open `http://127.0.0.1:8001`.
 
 For live Google Maps results, set `GOOGLE_MAPS_API_KEY` before starting the app.
 
@@ -58,7 +58,7 @@ uvicorn app.main:app --reload
 Example:
 
 ```bash
-curl "http://127.0.0.1:8000/api/restaurants?source=google&q=dosa&area=Indiranagar"
+curl "http://127.0.0.1:8001/api/restaurants?source=google&q=dosa&area=Indiranagar"
 ```
 
 The app sends Bengaluru-focused queries such as `dosa in Indiranagar, Bengaluru, Karnataka, India` and normalizes the Places results into the same restaurant card shape used by the UI. If no API key is configured, the Google source returns an empty result with a setup message instead of breaking the page.
