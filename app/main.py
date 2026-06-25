@@ -55,14 +55,26 @@ def list_restaurants(
     source: str = Query("local", pattern="^(local|google)$"),
 ):
     if source == "google":
-        return search_bengaluru_restaurants(
-            q=q,
+        restaurants = search_bengaluru_restaurants(
+            query=q,
             cuisine=cuisine,
             area=area,
             tag=tag,
             open_now=open_now,
             min_rating=min_rating,
         )
+        message = None
+        if not restaurants:
+            message = (
+                "Live OpenStreetMap data came back empty. The free Overpass API "
+                "is sometimes rate-limited from cloud hosts (Render, GitHub Actions, "
+                "etc.) — try again in a moment or switch to Demo data."
+            )
+        return {
+            "count": len(restaurants),
+            "restaurants": restaurants,
+            "message": message,
+        }
 
     results = list(RESTAURANTS)
 
