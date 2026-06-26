@@ -1,13 +1,21 @@
+import time
+
 import requests
 
 # Two public Overpass mirrors. The main overpass-api.de instance is
-# notorious for throttling/blocking requests from cloud & CI IP ranges
-# (this is exactly what was breaking GitHub Actions). Falling back to a
-# second mirror makes this much more reliable from Render too.
+# notorious for throttling/blocking requests from cloud & CI IP ranges.
+# Falling back to a second mirror makes this much more reliable from Render.
 OVERPASS_URLS = [
     "https://overpass-api.de/api/interpreter",
     "https://overpass.kumi.systems/api/interpreter",
 ]
+
+# Overpass's fair-use policy asks clients to identify themselves. Requests
+# with the default "python-requests/x.x" User-Agent get throttled much more
+# aggressively than ones that identify the app.
+HEADERS = {
+    "User-Agent": "RestroFinder/1.0 (https://the-hungry-bird.onrender.com)"
+}
 
 # A bounding box around Bengaluru. Querying by bounding box is faster and
 # far more reliable than `area[name="Bengaluru"]->.searchArea;`, which makes
@@ -21,12 +29,43 @@ node["amenity"="restaurant"]{BENGALURU_BBOX};
 out center 100;
 """
 
+# The Overpass query itself never changes — it always pulls every
+# restaurant in the bbox, and filtering happens afterwards in Python. So
+# there's no reason to re-hit Overpass on every page load / filter change.
+# A short in-memory cache cuts request volume drastically, which is the
+# single biggest lever for avoiding the rate limit.
+_CACHE = {"elements": None, "fetched_at": 0}
+_CACHE_TTL_SECONDS = 600  # 10 minutes
 
-def google_places_enabled():
-    # No real Google Maps API key is configured for this project, so we
-    # always unlock the dropdown and serve free, live OpenStreetMap data
-    # under the "google" source instead.
-    return True
+
+def _fetch_osm_elements():
+    now = time.time()
+    if _CACHE["elements"] is not None and (now - _CACHE["fetched_at"]) < _CACHE_TTL_SECONDS:
+        return _CACHE["elements"]
+
+    last_error = None
+    for overpass_url in OVERPASS_URLS:
+        for attempt in range(2):  # one retry per mirror before giving up on it
+            try:
+                response = requests.get(
+                    overpass_url,
+                    params={"data": OVERPASS_QUERY},
+                    headers=HEADERS,
+                    timeout=30,
+                )
+                response.raise_for_status()
+                elements = response.json().get("elements", [])
+                _CACHE["elements"] = elements
+                _CACHE["fetched_at"] = now
+                return elements
+            except Exception as exc:  # network error, timeout, rate limit, bad JSON, etc.
+                last_error = exc
+                print(f"Overpass mirror {overpass_url} attempt {attempt + 1} failed: {exc}")
+                time.sleep(1.5)
+
+    print(f"Error fetching live OSM data, all mirrors failed: {last_error}")
+    # Serve a stale cache rather than nothing, if we have one
+    return _CACHE["elements"] or []
 
 
 def _restaurant_from_osm(element):
@@ -59,27 +98,11 @@ def _restaurant_from_osm(element):
     }
 
 
-def search_bengaluru_restaurants(query=None, cuisine=None, area=None, tag=None, open_now=None, min_rating=0, **kwargs):
-    data = None
-    last_error = None
-
-    for overpass_url in OVERPASS_URLS:
-        try:
-            response = requests.get(overpass_url, params={"data": OVERPASS_QUERY}, timeout=30)
-            response.raise_for_status()
-            data = response.json()
-            break
-        except Exception as exc:  # network error, timeout, rate limit, bad JSON, etc.
-            last_error = exc
-            print(f"Overpass mirror {overpass_url} failed: {exc}")
-            continue
-
-    if data is None:
-        print(f"Error fetching live OSM data, all mirrors failed: {last_error}")
-        return []
+def search_osm_restaurants(query=None, cuisine=None, area=None, tag=None, open_now=None, min_rating=0, **kwargs):
+    elements = _fetch_osm_elements()
 
     restaurants = []
-    for element in data.get("elements", []):
+    for element in elements:
         restaurant = _restaurant_from_osm(element)
         if restaurant:
             restaurants.append(restaurant)
