@@ -38,6 +38,12 @@ _CACHE = {"elements": None, "fetched_at": 0}
 _CACHE_TTL_SECONDS = 600  # 10 minutes
 
 
+def google_places_enabled():
+    """Check if Google Places integration is enabled."""
+    # Google Places integration is not currently configured
+    return False
+
+
 def _fetch_osm_elements():
     now = time.time()
     if _CACHE["elements"] is not None and (now - _CACHE["fetched_at"]) < _CACHE_TTL_SECONDS:
@@ -122,3 +128,16 @@ def search_osm_restaurants(query=None, cuisine=None, area=None, tag=None, open_n
         restaurants = [r for r in restaurants if r["rating"] >= min_rating]
 
     return restaurants[:20]
+
+
+def search_bengaluru_restaurants(query=None, cuisine=None, area=None, tag=None, open_now=None, min_rating=0, **kwargs):
+    """Search for restaurants in Bengaluru using live OpenStreetMap data."""
+    return search_osm_restaurants(
+        query=query,
+        cuisine=cuisine,
+        area=area,
+        tag=tag,
+        open_now=open_now,
+        min_rating=min_rating,
+        **kwargs
+    )
