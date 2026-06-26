@@ -10,11 +10,14 @@ jobs:
 
       - name: Configure SSH
         run: |
+          if [ -z "${{ secrets.VM_HOST }}" ]; then
+            echo "Error: VM_HOST secret is not set"
+            exit 1
+          fi
           mkdir -p ~/.ssh
           printf '%s\n' "${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}" > ~/.ssh/restro_finder
           chmod 600 ~/.ssh/restro_finder
           ssh-keyscan -H "${{ secrets.VM_HOST }}" >> ~/.ssh/known_hosts
-
       - name: Sync application files
         run: |
           rsync -az --delete \
